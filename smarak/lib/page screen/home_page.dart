@@ -235,7 +235,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildMenuGrid() {
     final items = [
       _menuItem(Icons.history, "Riwayat", const HistoryPage()),
-      _menuItem(Icons.swap_horiz, "Transfer", const TransferPage()),
+      _menuItem(Icons.note_alt_outlined, "Catatan Alat ", const TransferPage()),
       _menuItem(Icons.inventory, "Persediaan", const AlatPage()),
       _menuItem(Icons.warning, "SOS", const SosPage(), isSOS: true),
       _menuItem(
@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      _menuItem(Icons.settings, "About Tools", const SettingsPage()),
+      _menuItem(Icons.build_rounded, "About Tools", const SettingsPage()),
     ];
 
     return GridView.count(
