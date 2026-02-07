@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "732563246836",
+    "project_id": "smarak-9ffc9",
+    "storage_bucket": "smarak-9ffc9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732563246836:android:39d91c953de8a6b1ba18a1",
+        "android_client_info": {
+          "package_name": "com.example.smarak"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn-p7vDO_S3npempxrIYefM9Nh9KlH7L4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732563246836:android:651ec52cc4dff92eba18a1",
+        "android_client_info": {
+          "package_name": "com.krenova.smirik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn-p7vDO_S3npempxrIYefM9Nh9KlH7L4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
