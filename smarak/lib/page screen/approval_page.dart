@@ -4,6 +4,48 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AlatPage extends StatelessWidget {
   const AlatPage({super.key});
 
+  /// ================= TAMBAH ALAT DIALOG =================
+  void tambahAlatDialog(BuildContext context) {
+    final TextEditingController namaController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Tambah Alat"),
+          content: TextField(
+            controller: namaController,
+            decoration: const InputDecoration(
+              labelText: "Nama Alat",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (namaController.text.isNotEmpty) {
+                  await FirebaseFirestore.instance.collection('status').add({
+                    'nama_alat': namaController.text,
+                    'status': true,
+                    'created_at': FieldValue.serverTimestamp(),
+                  });
+
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text("Simpan"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,20 +56,14 @@ class AlatPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header dengan styling lebih baik
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    "Alat & Peralatan",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFFF4B000),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
+              /// ===== Header =====
+              const Text(
+                "Alat & Peralatan",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFF4B000),
+                ),
               ),
               const SizedBox(height: 6),
               Text(
@@ -35,12 +71,11 @@ class AlatPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w400,
                 ),
               ),
               const SizedBox(height: 28),
 
-              // Column header
+              /// ===== Column Header =====
               Row(
                 children: [
                   Expanded(
@@ -82,47 +117,52 @@ class AlatPage extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
 
-              // List alat
-             Expanded(
-  child: StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance
-        .collection('status')
-        .snapshots(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      }
+              /// ===== LIST DATA =====
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('status')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                          child: CircularProgressIndicator());
+                    }
 
-      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-        return const Center(child: Text("Data alat kosong"));
-      }
+                    if (!snapshot.hasData ||
+                        snapshot.data!.docs.isEmpty) {
+                      return const Center(
+                          child: Text("Data alat kosong"));
+                    }
 
-      return ListView(
-        children: snapshot.data!.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
+                    return ListView(
+                      children: snapshot.data!.docs.map((doc) {
+                        final data =
+                            doc.data() as Map<String, dynamic>;
 
-          final String namaAlat = data['nama_alat'];
-          final bool status = data['status']; // ⬅️ ambil dari Firestore
-
-          return alatRow(
-            nama: namaAlat,
-            tersedia: status,
-          );
-        }).toList(),
-      );
-    },
-  ),
-),
+                        return alatRow(
+                          nama: data['nama_alat'],
+                          tersedia: data['status'],
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+              ),
 
               const SizedBox(height: 20),
 
-              // Tombol tambah dengan styling lebih baik
+              /// ===== BUTTON TAMBAH =====
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    tambahAlatDialog(context);
+                  },
                   icon: const Icon(Icons.add_rounded),
                   label: const Text("Tambah Alat Baru"),
                   style: ElevatedButton.styleFrom(
@@ -132,7 +172,6 @@ class AlatPage extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: 2,
                   ),
                 ),
               ),
@@ -143,118 +182,93 @@ class AlatPage extends StatelessWidget {
     );
   }
 
-  // ===== Widget Row Alat (digabung di file yang sama) =====
-static Widget alatRow({
-  required String nama,
-  required bool tersedia,
-}) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.08),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ],
-      border: Border.all(
-        color: Colors.grey.shade200,
-        width: 1,
+  /// ================= ROW ALAT =================
+  static Widget alatRow({
+    required String nama,
+    required bool tersedia,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 8,
+          )
+        ],
       ),
-    ),
-    child: Row(
-      children: [
-        /// ===== Nama alat =====
-        Expanded(
-          flex: 2,
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4B000).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          /// ===== Nama Alat =====
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF4B000).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.construction,
+                    color: Color(0xFFF4B000),
+                  ),
                 ),
-                child: const Icon(
-                  Icons.construction,
-                  color: Color(0xFFF4B000),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nama,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nama,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      tersedia ? "Tersedia" : "Dipinjam",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: tersedia ? Colors.green : Colors.red,
+                      Text(
+                        tersedia ? "Tersedia" : "Dipinjam",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: tersedia
+                              ? Colors.green
+                              : Colors.red,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
-        /// ===== Status =====
-        Expanded(
-          child: Center(
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: tersedia ? Colors.green : Colors.red,
-                  width: 2,
-                ),
-              ),
+          /// ===== Status =====
+          Expanded(
+            child: Center(
               child: Icon(
                 tersedia ? Icons.check : Icons.close,
                 color: tersedia ? Colors.green : Colors.red,
-                size: 18,
               ),
             ),
           ),
-        ),
 
-        /// ===== Riwayat =====
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4B000),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
+          /// ===== Riwayat Icon =====
+          const Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Icon(
                 Icons.history,
-                color: Colors.white,
-                size: 18,
+                color: Color(0xFFF4B000),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 }
