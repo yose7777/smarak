@@ -239,8 +239,8 @@ class _HomePageState extends State<HomePage> {
       _menuItem(Icons.inventory, "Persediaan", const AlatPage()),
       _menuItem(Icons.warning, "SOS", const SosPage(), isSOS: true),
       _menuItem(
-        Icons.person,
-        "Profile",
+        Icons.settings,
+        "Setting",
         ProfilePage(
           isDarkMode: isDarkMode,
           onDarkModeChange: (val) {

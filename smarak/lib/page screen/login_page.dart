@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../service/auth_service.dart';
 import '../service/firebase.dart';
 import 'home_page.dart';
+import 'admin.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         children: [
 
-          /// ================= BACKGROUND =================
+          /// BACKGROUND
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -41,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
 
-          /// ================= CONTENT =================
+          /// CONTENT
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -50,8 +51,6 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.95),
                   borderRadius: BorderRadius.circular(22),
-
-                  /// ⭐ PREMIUM SHADOW
                   border: Border.all(
                     color: Colors.white.withOpacity(0.6),
                   ),
@@ -72,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
 
-                    /// ================= ICON =================
+                    /// ICON
                     Container(
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
@@ -107,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 30),
 
-                    /// ================= EMAIL =================
+                    /// EMAIL
                     TextField(
                       controller: emailC,
                       decoration: InputDecoration(
@@ -121,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 16),
 
-                    /// ================= PASSWORD =================
+                    /// PASSWORD
                     TextField(
                       controller: passC,
                       obscureText: !showPassword,
@@ -146,7 +145,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
 
-                    /// ================= ERROR TEXT =================
                     if (error.isNotEmpty) ...[
                       const SizedBox(height: 10),
                       Text(
@@ -157,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 26),
 
-                    /// ================= LOGIN BUTTON =================
+                    /// LOGIN BUTTON
                     SizedBox(
                       width: double.infinity,
                       height: 52,
@@ -186,7 +184,6 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 16),
 
-                    /// ================= FOOTER =================
                     Text(
                       "Inventory Management System",
                       style: TextStyle(
@@ -212,17 +209,34 @@ class _LoginPageState extends State<LoginPage> {
         error = '';
       });
 
+      /// LOGIN AUTH
       await authService.login(
         emailC.text.trim(),
         passC.text.trim(),
       );
 
+      /// BUAT PROFILE JIKA BELUM ADA
       await pegawaiService.createProfileFromEmailIfNotExist();
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      /// 🔥 CEK ROLE
+      final role = await pegawaiService.getUserRole();
+
+      if (role == "admin") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminHomePage(),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HomePage(),
+          ),
+        );
+      }
+
     } catch (e) {
       setState(() => error = 'Email atau password salah');
     } finally {
